@@ -1,0 +1,1 @@
+This repo is where I store data, visualizations and scripts pertaining to Fantasy Football.
