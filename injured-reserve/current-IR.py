@@ -1,4 +1,3 @@
-
 import pandas as pd
 
 page = 'https://www.footballdb.com/transactions/injured-reserve.html?sortfld=date&sortdir=desc#'
