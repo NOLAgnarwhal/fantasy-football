@@ -1,3 +1,5 @@
 .vscode/
 venv/
-data/
+data-ffdp/
+figs/
+practice-scripts/
