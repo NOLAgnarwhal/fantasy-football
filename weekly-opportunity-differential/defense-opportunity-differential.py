@@ -84,9 +84,86 @@ for pos in positions:
 #Concat makes dfs list into one DF we'll call "opportunity_df"
 opportunity_df = pd.concat(dfs).fillna(0)
 
+### Add DST to opportunity_df. First we have to scrape FantasyPros and FootballDB for the applicable stats. Then we merge those two DFs and finally concat that onto opportunity_df.
+fp_def_url = 'https://www.fantasypros.com/nfl/stats/dst.php?range=full'
+fp_def_table = pd.read_html(fp_def_url, attrs={'id':'data'})
+fp_def_df = fp_def_table[0]
+
+#Creates Pos, Team and Player columns
+fp_def_df['Pos'] = 'DST'    
+fp_def_df['Team'] = fp_def_df['Player'].apply(lambda x: x.split()[-1].strip('()'))
+fp_def_df['Player'] = fp_def_df['Player'].apply(lambda x: ' '.join(x.split()[:-1]))
+
+fp_def_df = fp_def_df.drop([
+    'FPTS','FPTS/G','OWN','FF'
+], axis=1)
+
+fp_def_df = fp_def_df.rename({
+    'SACK':'Sack',
+    'INT':'Int',
+    'SFTY':'Safety'
+}, axis=1)
+
+fp_def_df['Def TD'] = fp_def_df['DEF TD']+fp_def_df['SPC TD']
+
+fp_def_df = fp_def_df.drop([
+    'DEF TD', 'SPC TD'
+], axis=1)
+
+fbdb_def_url = 'https://www.footballdb.com/stats/teamstat.html?lg=NFL&yr=2020&type=reg&cat=T&group=D'
+fbdb_def_table = pd.read_html(fbdb_def_url, attrs={'class':'statistics'})
+fbdb_def_df = fbdb_def_table[0]
+
+fbdb_team_name_map = {
+    'Arizona CardinalsArizona':'ARI',
+    'Atlanta FalconsAtlanta':'ATL',
+    'Baltimore RavensBaltimore':'BAL',
+    'Buffalo BillsBuffalo':'BUF',
+    'Carolina PanthersCarolina':'CAR',
+    'Chicago BearsChicago':'CHI',
+    'Cincinnati BengalsCincinnati':'CIN',
+    'Cleveland BrownsCleveland':'CLE',
+    'Dallas CowboysDallas':'DAL',
+    'Denver BroncosDenver':'DEN',
+    'Detroit LionsDetroit':'DET',
+    'Green Bay PackersGreen Bay':'GB',
+    'Houston TexansHouston':'HOU',
+    'Indianapolis ColtsIndianapolis':'IND',
+    'Jacksonville JaguarsJacksonville':'JAC',
+    'Kansas City ChiefsKansas City':'KC',
+    'Las Vegas RaidersLas Vegas':'LV',
+    'Los Angeles ChargersLA Chargers':'LAC',
+    'Los Angeles RamsLA Rams':'LAR',
+    'Miami DolphinsMiami':'MIA',
+    'Minnesota VikingsMinnesota':'MIN',
+    'New England PatriotsNew England':'NE',
+    'New Orleans SaintsNew Orleans':'NO',
+    'New York GiantsNY Giants':'NYG',
+    'New York JetsNY Jets':'NYJ',
+    'Philadelphia EaglesPhiladelphia':'PHI',
+    'Pittsburgh SteelersPittsburgh':'PIT',
+    'San Francisco 49ersSan Francisco':'SF',
+    'Seattle SeahawksSeattle':'SEA',
+    'Tampa Bay BuccaneersTampa Bay':'TB',
+    'Tennessee TitansTennessee':'TEN',
+    'Washington Football TeamWashington':'WAS'
+}
+
+fbdb_def_df = fbdb_def_df.replace({
+    'Team':fbdb_team_name_map
+})
+
+fbdb_def_df = fbdb_def_df.loc[:,['Team','Pts/G']]
+
+dst_df = pd.merge(fp_def_df,fbdb_def_df, how='left', on='Team')
+
+dst_df = dst_df.drop(['Rank'], axis=1)
+
+opportunity_df = pd.concat([opportunity_df,dst_df]).fillna(0)
+
 #Now we'll add our weekly opponent. If you're running this from your own computer I suggest running 'nfl-sched.py' or downloading 'nfl_sched.csv' located in the same folder as this file in GitHub (ADD GITHUB LINK HERE). 'nfl-sched.py' uses the sportsreference package to create 'nfl_sched.csv'. ###
 
-nfl_sched_df = pd.read_csv('/home/gnarwhal/fantasy-football/weekly-stats/nfl_sched.csv')
+nfl_sched_df = pd.read_csv('/home/gnarwhal/fantasy-football/weekly-opportunity-differential/nfl_sched.csv')
 
 nfl_sched_df = nfl_sched_df.drop(['Unnamed: 0', 'Day',], axis=1)
 
@@ -94,6 +171,7 @@ nfl_sched_df = nfl_sched_df.loc[nfl_sched_df['Week']== week]
 
 opportunity_df = opportunity_df.merge(nfl_sched_df, how='left', on='Team')
 
+#%%
 ### So far we've scraped the offensive average performances of each fantasy point category for each offensive player who has scored fantasy points and added the functionality of identifying the week's opponent through user input.###
 
 ### Next, we're going to figure out what percentage of players' stats account for the overall team offensive production. First we'll have to scrape overall offensive team data from The Football Database. ###
@@ -129,43 +207,8 @@ team_rush_df = team_rush_df.drop([
 ###This is also part where I think some regex would do for splitting the team_off_df Team column up, but not quite sure how.
 team_off_df = pd.merge(team_pass_df, team_rush_df, on='Team')
 
-team_name_map = {
-    'Arizona CardinalsArizona':'ARI',
-    'Atlanta FalconsAtlanta':'ATL',
-    'Baltimore RavensBaltimore':'BAL',
-    'Buffalo BillsBuffalo':'BUF',
-    'Carolina PanthersCarolina':'CAR',
-    'Chicago BearsChicago':'CHI',
-    'Cincinnati BengalsCincinnati':'CIN',
-    'Cleveland BrownsCleveland':'CLE',
-    'Dallas CowboysDallas':'DAL',
-    'Denver BroncosDenver':'DEN',
-    'Detroit LionsDetroit':'DET',
-    'Green Bay PackersGreen Bay':'GB',
-    'Houston TexansHouston':'HOU',
-    'Indianapolis ColtsIndianapolis':'IND',
-    'Jacksonville JaguarsJacksonville':'JAC',
-    'Kansas City ChiefsKansas City':'KC',
-    'Las Vegas RaidersLas Vegas':'LV',
-    'Los Angeles ChargersLA Chargers':'LAC',
-    'Los Angeles RamsLA Rams':'LAR',
-    'Miami DolphinsMiami':'MIA',
-    'Minnesota VikingsMinnesota':'MIN',
-    'New England PatriotsNew England':'NE',
-    'New Orleans SaintsNew Orleans':'NO',
-    'New York GiantsNY Giants':'NYG',
-    'New York JetsNY Jets':'NYJ',
-    'Philadelphia EaglesPhiladelphia':'PHI',
-    'Pittsburgh SteelersPittsburgh':'PIT',
-    'San Francisco 49ersSan Francisco':'SF',
-    'Seattle SeahawksSeattle':'SEA',
-    'Tampa Bay BuccaneersTampa Bay':'TB',
-    'Tennessee TitansTennessee':'TEN',
-    'Washington Football TeamWashington':'WAS'
-}
-
 team_off_df = team_off_df.replace({
-    'Team':team_name_map
+    'Team':fbdb_team_name_map
 })
 
 #Merge Team Offense DF with Player Average DF so each player. Now each player has a team total associated with them.
@@ -236,7 +279,7 @@ rush_def_df = rush_def_df.rename({
 team_def_df = pd.merge(pass_def_df, rush_def_df, on='Opp')
 
 team_def_df = team_def_df.replace({
-    'Opp':team_name_map
+    'Opp':fbdb_team_name_map
 })
 opportunity_df = opportunity_df.merge(team_def_df, how='left', on='Opp')
 
