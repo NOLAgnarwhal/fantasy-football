@@ -28,53 +28,59 @@ for pos in positions:
     #Maninpulate columns for QBs
     if pos == 'qb':
         df = df.rename({
-            'INT':'Ints',
-            'FL':'FumLost'
+            'INT':'Ints/G',
+            'FL':'FumLost/G'
         }, axis=1)
 
-        df['PassYds'] = df['YDS'].iloc[:,0]/df['G']
-        df['RushYds'] = df['YDS'].iloc[:,1]/df['G']
-        df['PassTDs'] = df['TD'].iloc[:,0]/df['G']
-        df['RushTDs'] = df['TD'].iloc[:,1]/df['G']
+        df['PassYds/G'] = df['YDS'].iloc[:,0]/df['G']
+        df['RushYds/G'] = df['YDS'].iloc[:,1]/df['G']
+        df['PassTDs/G'] = df['TD'].iloc[:,0]/df['G']
+        df['RushTDs/G'] = df['TD'].iloc[:,1]/df['G']
+        df['Ints/G'] = df['Ints/G']/df['G']
+        df['FumLost/G'] = df['FumLost/G']/df['G']
 
         df = df.drop(['YDS', 'TD'], axis=1)
 
-        ordered_cols = ['Player', 'Team', 'Pos', 'PassYds', 'PassTDs', 'Ints', 'RushYds', 'RushTDs', 'FumLost', 'G']
+        ordered_cols = ['Player', 'Team', 'Pos', 'PassYds/G', 'PassTDs/G', 'Ints/G', 'RushYds/G', 'RushTDs/G', 'FumLost/G', 'G']
 
         df = df[ordered_cols]
     
     #Maninpulate columns for RBs
     elif pos == 'rb':
         df = df.rename({
-            'REC':'Rec',
-            'FL':'FumLost'
+            'REC':'Rec/G',
+            'FL':'FumLost/G'
         }, axis=1)
 
-        df['RushYds'] = df['YDS'].iloc[:,0]/df['G']
-        df['RecYds'] = df['YDS'].iloc[:,1]/df['G']
-        df['RushTDs'] = df['TD'].iloc[:,0]/df['G']
-        df['RecTDs'] = df['TD'].iloc[:,1]/df['G']
+        df['RushYds/G'] = df['YDS'].iloc[:,0]/df['G']
+        df['RecYds/G'] = df['YDS'].iloc[:,1]/df['G']
+        df['RushTDs/G'] = df['TD'].iloc[:,0]/df['G']
+        df['RecTDs/G'] = df['TD'].iloc[:,1]/df['G']
+        df['Rec/G'] = df['Rec/G']/df['G']
+        df['FumLost/G'] = df['FumLost/G']/df['G']
 
         df.drop(['YDS', 'TD'], axis=1)
 
-        ordered_cols = ['Player', 'Team', 'Pos','RushYds', 'RushTDs', 'Rec', 'RecYds', 'RecTDs', 'FumLost', 'G']
+        ordered_cols = ['Player', 'Team', 'Pos','RushYds/G', 'RushTDs/G', 'Rec/G', 'RecYds/G', 'RecTDs/G', 'FumLost/G', 'G']
 
         df = df[ordered_cols]
     #Maninpulate columns for WRs and TEs
     elif pos == 'wr' or pos =='te':
         df = df.rename({
-            'REC':'Rec',
-            'FL':'FumLost'
+            'REC':'Rec/G',
+            'FL':'FumLost/G'
         }, axis=1)
 
-        df['RushYds'] = df['YDS'].iloc[:,1]/df['G']
-        df['RecYds'] = df['YDS'].iloc[:,0]/df['G']
-        df['RushTDs'] = df['TD'].iloc[:,1]/df['G']
-        df['RecTDs'] = df['TD'].iloc[:,0]/df['G']
+        df['RushYds/G'] = df['YDS'].iloc[:,1]/df['G']
+        df['RecYds/G'] = df['YDS'].iloc[:,0]/df['G']
+        df['RushTDs/G'] = df['TD'].iloc[:,1]/df['G']
+        df['RecTDs/G'] = df['TD'].iloc[:,0]/df['G']
+        df['Rec/G'] = df['Rec/G']/df['G']
+        df['FumLost/G'] = df['FumLost/G']/df['G']
 
         df.drop(['YDS', 'TD'], axis=1)
 
-        ordered_cols = ['Player', 'Team', 'Pos','RushYds', 'RushTDs', 'Rec', 'RecYds', 'RecTDs', 'FumLost', 'G']
+        ordered_cols = ['Player', 'Team', 'Pos','RushYds/G', 'RushTDs/G', 'Rec/G', 'RecYds/G', 'RecTDs/G', 'FumLost/G', 'G']
 
         df = df[ordered_cols]
     
@@ -99,15 +105,19 @@ fp_def_df = fp_def_df.drop([
 ], axis=1)
 
 fp_def_df = fp_def_df.rename({
-    'SACK':'Sack',
-    'INT':'Int',
-    'SFTY':'Safety'
+    'SACK':'Sack/G',
+    'INT':'DefInt/G',
+    'SFTY':'Safety/G'
 }, axis=1)
 
-fp_def_df['Def TD'] = fp_def_df['DEF TD']+fp_def_df['SPC TD']
+fp_def_df['Def TD/G'] = (fp_def_df['DEF TD']+fp_def_df['SPC TD'])/fp_def_df['G']
+fp_def_df['Sack/G'] = fp_def_df['Sack/G']/fp_def_df['G']
+fp_def_df['DefInt/G'] = fp_def_df['DefInt/G']/fp_def_df['G']
+fp_def_df['FR/G'] = fp_def_df['FR']/fp_def_df['G']
+fp_def_df['Safety/G'] = fp_def_df['Safety/G']/fp_def_df['G']
 
 fp_def_df = fp_def_df.drop([
-    'DEF TD', 'SPC TD'
+    'DEF TD', 'SPC TD', 'FR'
 ], axis=1)
 
 fbdb_def_url = 'https://www.footballdb.com/stats/teamstat.html?lg=NFL&yr=2020&type=reg&cat=T&group=D'
@@ -160,7 +170,7 @@ dst_df = pd.merge(fp_def_df,fbdb_def_df, how='left', on='Team')
 dst_df = dst_df.drop(['Rank'], axis=1)
 
 opportunity_df = pd.concat([opportunity_df,dst_df]).fillna(0)
-
+#%%
 #Now we'll add our weekly opponent. If you're running this from your own computer I suggest running 'nfl-sched.py' or downloading 'nfl_sched.csv' located in the same folder as this file in GitHub (ADD GITHUB LINK HERE). 'nfl-sched.py' uses the sportsreference package to create 'nfl_sched.csv'. ###
 
 nfl_sched_df = pd.read_csv('/home/gnarwhal/fantasy-football/weekly-opportunity-differential/nfl_sched.csv')
