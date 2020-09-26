@@ -1,0 +1,26 @@
+Type,Stat,Pt Value,CW,SC,FFDP,FDL,DK,FD
+Rushing,RushYdBonus200,4,,x,,,,
+Rushing,RushYdBonus150,3,,x,,,,
+Rushing,RushYdBonus100,2,,x,,,,
+Rushing,RushYdBonus100,3,,,,,x,
+Rushing,RushYd,0.1,x,x,x,x,x,x
+Rushing,RushTD,6,x,x,x,x,x,x
+Receiving,RecYdBonus200,4,,x,,,,
+Receiving,RecYdBonus150,3,,x,,,,
+Receiving,RecYdBonus100,2,,x,,,,
+Receiving,RecYdBonus100,3,,,,,x,
+Receiving,RecYd,0.1,x,x,x,x,x,x
+Receiving,RecTD,6,x,x,x,x,x,x
+Receiving,Rec,0.5,x,x,x,,,x
+Receiving,Rec,1,,,,x,x,
+Passing,PassYdBonus500,4,,x,,,,
+Passing,PassYdBonus425,3,,x,,,,
+Passing,PassYdBonus350,2,,x,,,,
+Passing,PassYdBonus300,3,,,,,x,
+Passing,PassYd,0.04,x,,x,x,x,x
+Passing,PassYd,0.05,,x,,,,
+Passing,PassTD,4,x,x,x,x,x,x
+Passing,INT,-1,x,x,x,x,x,x
+Misc,FumLost,-2,x,,x,x,,x
+Misc,FumLost,-1,,x,,,x,
+Misc,Fum,-1,,,x,x,,
