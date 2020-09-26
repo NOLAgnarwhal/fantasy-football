@@ -1,6 +1,5 @@
 #%%
 import pandas as pd 
-import itertools
 
 week = int(input('What week of the NFL season is it?: '))
 
@@ -103,7 +102,6 @@ for pos in positions:
 
 fpros_df = pd.concat(dfs).fillna(0)
 
-#%%
 nfl_sched_df = pd.read_csv('/home/gnarwhal/fantasy-football/opponent-implied-ceiling/nfl_sched.csv')
 
 nfl_sched_df = nfl_sched_df.drop(['Unnamed: 0', 'Day',], axis=1)
@@ -111,10 +109,9 @@ nfl_sched_df = nfl_sched_df.drop(['Unnamed: 0', 'Day',], axis=1)
 nfl_sched_df = nfl_sched_df.loc[nfl_sched_df['Week']== week]
 
 fpros_df = fpros_df.merge(nfl_sched_df, how='left', on='Team')
-
-# %%
+#%%
 fbdb_url = 'https://www.footballdb.com/stats/teamstat.html?group={}&cat={}'
-groupcat = [ ('D','T'), ('O','T'), ('D','P'), ('D','R')]
+groupcat = [ ('D','T'), ('O','T'), ('D','P'), ('D','R'), ('O','R'), ('O','P')]
 fbdb_dfs = []
 for pair in groupcat:
     table = pd.read_html(fbdb_url.format(pair[0],pair[1]), attrs={'class':'statistics'})
@@ -164,7 +161,7 @@ for pair in groupcat:
         }, axis=1)
         ordered_cols = ['Team','PtsAllowed/G']
         df = df[ordered_cols]
-        fpros_df = pd.merge(fpros_df, df, how='left', on='Team')  
+          
 
     if pair == groupcat[2]:
         df = df.rename({
@@ -195,18 +192,48 @@ for pair in groupcat:
         }, axis=1)
         ordered_cols = ['Team','PtsScored/G']
         df = df[ordered_cols]
+
+    if pair == groupcat[4]:
+        df = df.rename({
+            'TD':'TeamRushTDs/G',
+            'Yds/G':'TeamRushYds/G'
+        }, axis=1)
+        df['TeamRushTDs/G'] = df['TeamRushTDs/G']/df['Gms']
+        ordered_cols = ['Team','TeamRushYds/G','TeamRushTDs/G']
+        df = df[ordered_cols]
+
+    if pair == groupcat[5]:
+        df = df.rename({
+            'Cmp':'TeamRec/G',
+            'Yds':'TeamRecYds/G',
+            'TD':'TeamRecTDs/G'
+        }, axis=1)
+        df['TeamRec/G'] = df['TeamRec/G']/df['Gms']
+        df['TeamRecYds/G'] = df['TeamRecYds/G']/df['Gms']
+        df['TeamRecTDs/G'] = df['TeamRecTDs/G']/df['Gms']
+        ordered_cols = ['Team','TeamRec/G','TeamRecYds/G','TeamRecTDs/G']
+        df = df[ordered_cols]
     
 
-    if pair != groupcat[0]:
+    
+    if pair == groupcat[0] or pair == groupcat[4] or pair == groupcat[5]:
+        fpros_df = pd.merge(fpros_df, df, how='left', on='Team')
+    else:
         fbdb_dfs.append(df)
+
+
 #%%
 fbdb_df = fbdb_dfs[0]
 fbdb_df = pd.merge(fbdb_df, fbdb_dfs[1], how='left', on='Team')
 fbdb_df = pd.merge(fbdb_df, fbdb_dfs[2], how='left', on='Team')
 
-# %%
 fbdb_df = fbdb_df.rename({
     'Team':'Opp'
 }, axis=1)
-fpros_df = pd.merge(fpros_df, fbdb_df, how='left', on='Opp')
+stats_df = pd.merge(fpros_df, fbdb_df, how='left', on='Opp')
+# %%
+
+stats_cols = ['Player', 'Team', 'Pos', 'Week', 'PassYds/G', 'PassTDs/G', 'Ints/G', 'Sacked/G', 'FumLost/G', 'RushYds/G', 'TeamRushYds/G', 'RushTDs/G', 'TeamRushTDs/G', 'Rec/G', 'TeamRec/G','RecYds/G', 'TeamRecYds/G', 'RecTDs/G','TeamRecTDs/G', 'DefSack/G', 'DefInt/G', 'FR/G', 'DefTD/G','DefSafety/G', 'PtsAllowed/G', 'Opp','PtsScored/G', 'RecAllowed/G', 'PassYdsAllowed/G', 'PassTDsAllowed/G','RushingYdsAllowed/G', 'RushingTDsAllowed/G']
+
+stats_df = stats_df[stats_cols]
 # %%
