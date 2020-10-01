@@ -3,3 +3,5 @@ venv/
 data-ffdp/
 figs/
 practice-scripts/
+.ipynb_checkpoints
+__pycache__
