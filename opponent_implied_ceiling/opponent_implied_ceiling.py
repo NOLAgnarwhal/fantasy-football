@@ -100,7 +100,7 @@ for pos in positions:
 
 fpros_df = pd.concat(dfs).fillna(0)
 
-nfl_sched_df = pd.read_csv('/home/gnarwhal/fantasy-football/opponent-implied-ceiling/nfl_sched.csv')
+nfl_sched_df = pd.read_csv('/home/gnarwhal/fantasy-football/opponent_implied_ceiling/nfl_sched.csv')
 
 nfl_sched_df = nfl_sched_df.drop(['Unnamed: 0', 'Day',], axis=1)
 
