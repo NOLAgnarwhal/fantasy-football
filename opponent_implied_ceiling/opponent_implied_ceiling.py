@@ -100,7 +100,7 @@ for pos in positions:
 
 fpros_df = pd.concat(dfs).fillna(0)
 
-nfl_sched_df = pd.read_csv('/home/gnarwhal/fantasy-football/opponent_implied_ceiling/nfl_sched.csv')
+nfl_sched_df = pd.read_csv('/home/gnarwhal/fantasy_football/opponent_implied_ceiling/nfl_sched.csv')
 
 nfl_sched_df = nfl_sched_df.drop(['Unnamed: 0', 'Day',], axis=1)
 
@@ -339,7 +339,6 @@ def get_hppr_oi_points(row):
     hppr_oi_points = sum([row[column]*weight for column, weight in hppr_oi_weights.items()])
     return hppr_oi_points
 
-
 def get_ppr_points(row):
     ppr_points = sum([row[column]*weight for column, weight in ppr_scoring_weights.items()])
     return ppr_points
@@ -360,7 +359,7 @@ def get_dst_oi_points(row):
 dst_df = stats_df.loc[stats_df['Pos']=='DST']
 
 dst_df['Avg Pts'] = dst_df.apply(get_dst_points, axis=1)
-dst_df['OIC'] = dst_df.apply(get_dst_oi_points, axis=1)
+dst_df['PPR OIC'] = dst_df.apply(get_dst_oi_points, axis=1)
 
 dst_condlist = [dst_df['PtsAllowed/G']>=35, 
     ((dst_df['PtsAllowed/G']<35) & (dst_df['PtsAllowed/G']>=28)), 
@@ -386,19 +385,19 @@ dst_condlist = [dst_df['PtsScored/G']>=35,
     ((dst_df['PtsScored/G']<14) & (dst_df['PtsScored/G']>=7)),
     ((dst_df['PtsScored/G']<7) & (dst_df['PtsScored/G']>=1)), 
     dst_df['PtsScored/G']<1]
-dst_choicelist = [dst_df['OIC']-4,
-    dst_df['OIC']-1,
-    dst_df['OIC'],
-    dst_df['OIC']+1,
-    dst_df['OIC']+4,
-    dst_df['OIC']+7,
-    dst_df['OIC']+10]
+dst_choicelist = [dst_df['PPR OIC']-4,
+    dst_df['PPR OIC']-1,
+    dst_df['PPR OIC'],
+    dst_df['PPR OIC']+1,
+    dst_df['PPR OIC']+4,
+    dst_df['PPR OIC']+7,
+    dst_df['PPR OIC']+10]
 
-dst_df['OIC'] = np.select(dst_condlist, dst_choicelist)
+dst_df['PPR OIC'] = np.select(dst_condlist, dst_choicelist)
 
-ordered_cols = ['Player','Team','Pos','Week','Avg Pts','OIC','DefSack/G','DefInt/G','FR/G','DefTD/G','DefSafety/G','PtsAllowed/G','Opp','SackAllowed/G','OffFumLost/G','OffInt/G','PtsScored/G']
+ordered_cols = ['Player','Team','Pos','Week','Avg Pts','PPR OIC','DefSack/G','DefInt/G','FR/G','DefTD/G','DefSafety/G','PtsAllowed/G','Opp','SackAllowed/G','OffFumLost/G','OffInt/G','PtsScored/G']
 dst_df = dst_df[ordered_cols]
-dst_df = dst_df.sort_values(by='OIC', ascending=False)
+dst_df = dst_df.sort_values(by='PPR OIC', ascending=False)
 
 stats_df['HPPR Avg'] = stats_df.apply(get_hppr_points,axis=1)
 stats_df['HPPR OIC'] = stats_df.apply(get_hppr_oi_points,axis=1)
