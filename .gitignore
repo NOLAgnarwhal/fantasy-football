@@ -5,3 +5,4 @@ figs/
 practice-scripts/
 .ipynb_checkpoints
 __pycache__
+private/
