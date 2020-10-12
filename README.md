@@ -3,8 +3,28 @@ This repo is where I store data, visualizations and scripts pertaining to Fantas
 # Working Projects
 
 ## [Opponent Implied Ceiling](https://github.com/NOLAgnarwhal/fantasy-football/tree/master/opponent_implied_ceiling)
-Opponent Implied Ceiling (OIC) creates a points projection for fantasy players based on their upcoming matchups by scraping individual stats from FantasyPros and team stats from FootballDB. Average individual performance in fantasy point metrics are scraped and then compared with average overall team offense in the same categories to create a percentage each player contributes to the overall team offense. This percentage is then applied to the same metrics that the upcoming defense is allowing on average. The result is a points projection that takes into consideration how much a player contributes to their team as well as if that performance is likely to be affected negatively or postively based on their upcoming opponent. 
+___
+Opponent Implied Ceiling (OIC) creates a points projection dataframe for fantasy players based on their upcoming matchups by scraping individual stats from FantasyPros and team stats from FootballDB. Average individual performance in fantasy point metrics are scraped and then compared with average overall team offense in the same categories to create a percentage each player contributes to the overall team offense. This percentage is then applied to the same metrics that the upcoming defense is allowing on average. The result is a points projection that takes into consideration how much a player contributes to their team as well as if that performance is likely to be affected negatively or postively based on their upcoming opponent. 
 
-**Notes:**
+Upon running you will be prompted to enter the current week of the NFL season. This matches players with their upcoming opponents.
+
+### **Notes:**
 + The earliest you should run this for the upcoming week is the Tuesday before.This is because FantasyPros and FootballDB update at different times with FantasyPros doing one big update usually on Tuesday and FootballDB updating almost immediately after games are completed. With games being played on Tuesdays now I'm not sure how FantasyPros will handle updating. You can always check if FantasyPros has updated by going to [their stats page](https://www.fantasypros.com/nfl/stats/qb) and looking at the number of games played in the 'G' column.
-+ Individual performance averages are calculated based on how many games *the player* has particpated in and ***not*** how many games their team has played.This is to prevent players who are injured for multiple weeks from having their stats diluted for not playing. 
++ Individual performance averages are calculated based on how many games *the player* has particpated in and ***not*** how many games their team has played. This is to prevent players who are injured for multiple weeks from having their stats diluted for not playing. 
+
+***Scripts that import this module***: [dfs_optim.py](https://github.com/NOLAgnarwhal/fantasy-football/blob/master/dfs_optim.py), [oic_csv.py](https://github.com/NOLAgnarwhal/fantasy-football/blob/master/oic_csv.py)
+
+## [DFS Lineup Optimizer](https://github.com/NOLAgnarwhal/fantasy-football/blob/master/dfs_optim.py)
+The DFS Lineup Optimizer (`dfs_optim.py`) uses my own [opponent implied ceiling](https://github.com/NOLAgnarwhal/fantasy-football/tree/master/opponent_implied_ceiling) projections combined with the current week's DraftKings slate to create the lineup with the most projected points given position and salary contraints. Once running `python3 dfs_optim.py` from the working directory you will be prompted to input the current week in the NFL season and any players you wish to exclude. The output is then shown in the terminal. 
+
+### **Notes:**
++ This uses my own projections with their pros and cons baked in. Feel free to input your own projections. 
++ The DK salaries csv in the code is hosted on my local machine. You will have to change that to where DK salaries are on your own machine. 
+
+### ***Upcoming Improvements (feel free to contribute!):***
++ Add DFS site flexibility. Right now this is hardcoded for the DraftKings classic lineup setup and uses PPR scoring for projections. 
++ Diversify projections. Maybe ceiling, median, floor? Maybe bootstrapping?
++ Add multi-lineup output functionality. Honestly have no clue how to do that at this point, but it'll be fun to learn.
+
+
+
