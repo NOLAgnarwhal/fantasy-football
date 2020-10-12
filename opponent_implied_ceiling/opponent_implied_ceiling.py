@@ -1,6 +1,9 @@
 import pandas as pd 
 pd.set_option('precision', 2)
 import numpy as np
+import warnings
+
+warnings.filterwarnings('ignore')
 
 week = int(input('What week of the NFL season is it?: '))
 
@@ -100,7 +103,7 @@ for pos in positions:
 
 fpros_df = pd.concat(dfs).fillna(0)
 
-nfl_sched_df = pd.read_csv('/home/gnarwhal/fantasy_football/opponent_implied_ceiling/nfl_sched.csv')
+nfl_sched_df = pd.read_csv('https://raw.githubusercontent.com/NOLAgnarwhal/fantasy-football/master/opponent_implied_ceiling/nfl_sched.csv')
 
 nfl_sched_df = nfl_sched_df.drop(['Unnamed: 0', 'Day',], axis=1)
 
