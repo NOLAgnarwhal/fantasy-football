@@ -3,6 +3,13 @@ import pulp
 from opponent_implied_ceiling import opponent_implied_ceiling
 import re
 
+### Adds players wanted to a list. ###
+included_players = []
+locked = input('Players to include (click Enter when done): ')
+while not locked == '':
+    included_players.append(locked)
+    locked = input('Players to include (click Enter when done): ')
+
 ### Adds unwanted players to a list. List used to delete players from DF later on. ###
 excluded_players = []
 dont_play = input('Players to exclude (click Enter when done): ')
@@ -43,14 +50,14 @@ fix_player_name = { #will need to update manually weekly#
 proj_df = proj_df.replace({'Name':fix_player_name})
 
 ### Import DK player salary DF to merge with projections DF ###
-dk_players = pd.read_csv('/home/gnarwhal/fantasy_football/salaries/wk{week}DKSalaries.csv'.format(week=opponent_implied_ceiling.week))
+dk_players = pd.read_csv('/home/gnarwhal/fantasy_football/salaries/wk{week}DKSalaries.csv'.format(week=opponent_implied_ceiling.week)) # You will need to import your own DK Salaries csv
 dk_players['Name'] = dk_players['Name'].apply(lambda x: x.strip()) #DK DF has white space for some reason#
 dk_players = dk_players.merge(proj_df, how='left', on='Name').fillna(0)
 dk_players = dk_players[['Position','Name','Salary','PPR OIC']] 
 
-### Excludes players from list created at beginning with user input ###
-for player in excluded_players:
-    dk_players = dk_players.loc[dk_players['Name']!=player]
+# ### Excludes players from list created at beginning with user input ###
+# for player in excluded_players:
+#     dk_players = dk_players.loc[dk_players['Name']!=player]
 
 ### Solve Optimization problem using puLP ###
 player_data = dk_players.set_index('Name')
@@ -72,6 +79,8 @@ prob += pulp.lpSum([players[i] for i in wr]) >= 3
 prob += pulp.lpSum([players[i] for i in te]) >= 1
 prob += pulp.lpSum([players[i] for i in dst]) == 1
 prob += pulp.lpSum([players[i] for i in plist]) == 9
+prob += pulp.lpSum([players[i] for i in included_players]) == len(included_players)
+prob += pulp.lpSum([players[i] for i in excluded_players]) == 0
 
 prob.solve()
 
