@@ -73,6 +73,7 @@ prob = pulp.LpProblem('DFS Optimization', pulp.LpMaximize)
 players = pulp.LpVariable.dicts('Player: ', plist, cat='Binary')
 prob += pulp.lpSum([player_data['PPR OIC'][i] * players[i] for i in plist])
 prob += pulp.lpSum([player_data['Salary'][i] * players[i] for i in plist]) <= 50000
+prob += pulp.lpSum([player_data['Salary'][i] * players[i] for i in plist]) >= 48000
 prob += pulp.lpSum([players[i] for i in qb]) == 1
 prob += pulp.lpSum([players[i] for i in rb]) >= 2
 prob += pulp.lpSum([players[i] for i in wr]) >= 3
